@@ -1,50 +1,95 @@
 import request from "supertest";
 import app from "../src/app";
 
-describe("Ticket Routes", () => {
-  it("should return all tickets", async () => {
-    // Arrange
-    const endpoint = "/api/v1/tickets";
+describe("Support Ticket Routes", () => {
+    let createdTicketId: number;
 
-    // Act
-    const res = await request(app).get(endpoint);
+    it("should create a ticket successfully", async () => {
+        // Arrange
+        const newTicket = {
+            title: "Test ticket",
+            description: "Test description",
+            priority: "low",
+        };
 
-    // Assert
-    expect(res.status).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
-  });
-});
+        // Act
+        const response = await request(app)
+            .post("/api/v1/tickets")
+            .send(newTicket);
 
-describe("GET /api/v1/tickets/:id", () => {
-  it("should return a ticket when id exists", async () => {
-    // Arrange
-    const createRes = await request(app)
-      .post("/api/v1/tickets")
-      .send({
-        title: "Test Ticket",
-        description: "Test Description",
-        priority: "low",
-      });
+        // Assert
+        expect(response.status).toBe(201);
+        expect(response.body).toHaveProperty("id");
+        expect(response.body.title).toBe("Test ticket");
 
-    const id = createRes.body.id;
+        createdTicketId = response.body.id;
+    });
 
-    // Act
-    const res = await request(app).get(`/api/v1/tickets/${id}`);
+    it("should return 400 when title is missing", async () => {
+        // Arrange
+        const invalidTicket = {
+            description: "No title",
+            priority: "low",
+        };
 
-    // Assert
-    expect(res.status).toBe(200);
-    expect(res.body.id).toBe(id);
-  });
+        // Act
+        const response = await request(app)
+            .post("/api/v1/tickets")
+            .send(invalidTicket);
 
-  it("should return 404 when ticket does not exist", async () => {
-    // Arrange
-    const nonExistentId = 9999;
+        // Assert
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe("Missing required field: title");
+    });
 
-    // Act
-    const res = await request(app).get(`/api/v1/tickets/${nonExistentId}`);
+    it("should return all tickets", async () => {
+        // Arrange - no setup needed
 
-    // Assert
-    expect(res.status).toBe(404);
-    expect(res.body.message).toBe("Ticket not found");
-  });
+        // Act
+        const response = await request(app).get("/api/v1/tickets");
+
+        // Assert
+        expect(response.status).toBe(200);
+        expect(Array.isArray(response.body)).toBe(true);
+    });
+
+    it("should return 404 for invalid ticket ID", async () => {
+        // Arrange
+        const invalidId: number = 99999;
+
+        // Act
+        const response = await request(app).get(`/api/v1/tickets/${invalidId}`);
+
+        // Assert
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe("Ticket not found");
+    });
+
+    it("should calculate ticket urgency", async () => {
+        // Arrange
+        const ticketId: number = 1;
+
+        // Act
+        const response = await request(app).get(`/api/v1/tickets/${ticketId}/urgency`);
+
+        // Assert
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveProperty("message");
+        expect(response.body.message).toBe("Ticket urgency calculated");
+        expect(response.body.data).toHaveProperty("urgencyScore");
+        expect(response.body.data).toHaveProperty("urgencyLevel");
+        expect(response.body.data).toHaveProperty("ticketAge");
+    });
+
+    it("should delete a ticket successfully", async () => {
+        // Arrange
+        const ticketId: number = createdTicketId;
+
+        // Act
+        const response = await request(app).delete(`/api/v1/tickets/${ticketId}`);
+
+        // Assert
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe("Ticket deleted successfully");
+    });
 });

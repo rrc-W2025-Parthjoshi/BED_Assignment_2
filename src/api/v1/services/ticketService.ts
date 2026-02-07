@@ -33,3 +33,11 @@ export const createTicket = (
   tickets.push(newTicket);
   return newTicket;
 };
+
+export const getAllTickets = (): Ticket[] => {
+  return tickets;
+};
+
+export const getTicketById = (id: number): Ticket | undefined => {
+  return tickets.find((t) => t.id === id);
+};

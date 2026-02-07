@@ -10,7 +10,6 @@ export interface Ticket {
   priority: TicketPriority;
   status: TicketStatus;
   createdAt: string;
-  updatedAt: string;
 }
 
 export const createTicket = (
@@ -20,15 +19,14 @@ export const createTicket = (
 ): Ticket => {
   const now = new Date().toISOString();
 
-  const newTicket: Ticket = {
+    const newTicket: Ticket = {
     id: tickets.length + 1,
     title,
     description,
     priority,
     status: "open",
     createdAt: now,
-    updatedAt: now,
-  };
+    };
 
   tickets.push(newTicket);
   return newTicket;

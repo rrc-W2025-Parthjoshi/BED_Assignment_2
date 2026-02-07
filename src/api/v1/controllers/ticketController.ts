@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createTicket, getAllTickets, getTicketById, updateTicket, TicketPriority, TicketStatus } from "../services/ticketService";
+import { createTicket, getAllTickets, getTicketById, updateTicket, deleteTicket, TicketPriority, TicketStatus } from "../services/ticketService";
 import { HTTP_STATUS } from "../../../constants/httpConstants";
 
 
@@ -96,4 +96,17 @@ export const updateTicketHandler = (req: Request, res: Response): void => {
   }
 
   res.status(HTTP_STATUS.OK).json(updatedTicket);
+};
+
+export const deleteTicketHandler = (req: Request, res: Response): void => {
+  const id = Number(req.params.id);
+
+  const deleted = deleteTicket(id);
+
+  if (!deleted) {
+    res.status(HTTP_STATUS.NOT_FOUND).json({ message: "Ticket not found" });
+    return;
+  }
+
+  res.status(HTTP_STATUS.OK).json({ message: "Ticket deleted successfully" });
 };

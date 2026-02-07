@@ -12,6 +12,12 @@ export interface Ticket {
   createdAt: string;
 }
 
+export interface TicketUrgency extends Ticket {
+  ticketAge: number;
+  urgencyScore: number;
+  urgencyLevel: string;
+}
+
 export const createTicket = (
   title: string,
   description: string,
@@ -72,4 +78,57 @@ export const deleteTicket = (id: number): boolean => {
 
   tickets.splice(index, 1);
   return true;
+};
+
+export const calculateTicketUrgency = (id: number): TicketUrgency | undefined => {
+  const ticket = getTicketById(id);
+  
+  if (!ticket) {
+    return undefined;
+  }
+
+  // If ticket is resolved, urgency is minimal
+  if (ticket.status === "resolved") {
+    return {
+      ...ticket,
+      ticketAge: Math.floor((Date.now() - new Date(ticket.createdAt).getTime()) / (1000 * 60 * 60 * 24)),
+      urgencyScore: 0,
+      urgencyLevel: "Minimal. Ticket resolved.",
+    };
+  }
+
+  // Calculate ticket age in days
+  const ticketAge = Math.floor(
+    (Date.now() - new Date(ticket.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  // Base scores by priority
+  const baseScores: Record<TicketPriority, number> = {
+    critical: 50,
+    high: 30,
+    medium: 20,
+    low: 10,
+  };
+
+  // Calculate urgency score: baseScore + (age * 5)
+  const urgencyScore = baseScores[ticket.priority] + (ticketAge * 5);
+
+  // Determine urgency level based on score
+  let urgencyLevel: string;
+  if (urgencyScore >= 70) {
+    urgencyLevel = "Critical. Immediate attention required.";
+  } else if (urgencyScore >= 50) {
+    urgencyLevel = "High urgency. Prioritize resolution.";
+  } else if (urgencyScore >= 30) {
+    urgencyLevel = "Moderate. Schedule for attention.";
+  } else {
+    urgencyLevel = "Low urgency. Address when capacity allows.";
+  }
+
+  return {
+    ...ticket,
+    ticketAge,
+    urgencyScore,
+    urgencyLevel,
+  };
 };

@@ -39,3 +39,26 @@ export const getAllTickets = (): Ticket[] => {
 export const getTicketById = (id: number): Ticket | undefined => {
   return tickets.find((t) => t.id === id);
 };
+
+export const updateTicket = (
+  id: number,
+  updates: {
+    title?: string;
+    description?: string;
+    priority?: TicketPriority;
+    status?: TicketStatus;
+  }
+): Ticket | undefined => {
+  const index = tickets.findIndex((t) => t.id === id);
+  
+  if (index === -1) {
+    return undefined;
+  }
+
+  tickets[index] = {
+    ...tickets[index],
+    ...updates,
+  };
+
+  return tickets[index];
+};

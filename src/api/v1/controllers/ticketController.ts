@@ -41,7 +41,11 @@ export const createTicketHandler = (req: Request, res: Response): void => {
 
 export const getAllTicketsHandler = (_req: Request, res: Response): void => {
   const tickets = getAllTickets();
-  res.status(HTTP_STATUS.OK).json(tickets);
+  res.status(HTTP_STATUS.OK).json({
+    message: "Tickets retrieved",
+    count: tickets.length,
+    data: tickets
+  });
 };
 
 export const getTicketByIdHandler = (req: Request, res: Response): void => {

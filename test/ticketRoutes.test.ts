@@ -50,8 +50,9 @@ describe("Support Ticket Routes", () => {
 
         // Assert
         expect(response.status).toBe(200);
-        expect(Array.isArray(response.body)).toBe(true);
+        expect(Array.isArray(response.body.data)).toBe(true);
     });
+
 
     it("should return 404 for invalid ticket ID", async () => {
         // Arrange

@@ -1,4 +1,4 @@
-import { calculateTicketUrgency } from "../src/api/v1/services/ticketService";
+import { calculateTicketUrgency,TicketUrgency } from "../src/api/v1/services/ticketService";
 
 describe("Ticket Urgency Calculation", () => {
     it("should calculate low urgency for low priority ticket", () => {
@@ -6,12 +6,15 @@ describe("Ticket Urgency Calculation", () => {
         const ticketId: number = 1;
 
         // Act
-        const result = calculateTicketUrgency(ticketId);
+        const result: TicketUrgency | undefined =
+            calculateTicketUrgency(ticketId);
 
         // Assert
         expect(result).toBeDefined();
         expect(result?.urgencyScore).toBe(25);
-        expect(result?.urgencyLevel).toBe("Low urgency. Address when capacity allows.");
+        expect(result?.urgencyLevel).toBe(
+            "Low urgency. Address when capacity allows."
+        );
     });
 
     it("should calculate critical urgency for critical priority old ticket", () => {
@@ -19,12 +22,15 @@ describe("Ticket Urgency Calculation", () => {
         const ticketId: number = 6;
 
         // Act
-        const result = calculateTicketUrgency(ticketId);
+        const result: TicketUrgency | undefined =
+            calculateTicketUrgency(ticketId);
 
         // Assert
         expect(result).toBeDefined();
         expect(result?.urgencyScore).toBe(80);
-        expect(result?.urgencyLevel).toBe("Critical. Immediate attention required.");
+        expect(result?.urgencyLevel).toBe(
+            "Critical. Immediate attention required."
+        );
     });
 
     it("should return minimal urgency for resolved tickets", () => {
@@ -32,7 +38,8 @@ describe("Ticket Urgency Calculation", () => {
         const ticketId: number = 7;
 
         // Act
-        const result = calculateTicketUrgency(ticketId);
+        const result: TicketUrgency | undefined =
+            calculateTicketUrgency(ticketId);
 
         // Assert
         expect(result).toBeDefined();
@@ -45,7 +52,8 @@ describe("Ticket Urgency Calculation", () => {
         const ticketId: number = 99999;
 
         // Act
-        const result = calculateTicketUrgency(ticketId);
+        const result: TicketUrgency | undefined =
+            calculateTicketUrgency(ticketId);
 
         // Assert
         expect(result).toBeUndefined();
